@@ -33,7 +33,7 @@ A *library* is a collection of *resources* that are served by the CDN. Each libr
 
 # CDN Layout
 
-The basic URL pattern for hosted *resources* is as follows:
+The basic URL pattern for hosted resources is as follows:
 
 `https://web-cdn.byu.edu/{libraryName}/{version}/{pathToResource}`
 
@@ -72,7 +72,7 @@ updates.
 
 # Criteria For Inclusion
 
-In order for us to include *libraries* in this CDN, the *library* must either be built by the Web Community for use by campus, or
+In order for us to include libraries in this CDN, the library must either be built by the Web Community for use by campus, or
 must be generally useful to a large number of campus sites.  In general, the following things must be true:
 
 1. The code must be of high quality and relatively free of defects.
