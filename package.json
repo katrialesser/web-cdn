@@ -1,0 +1,17 @@
+{
+  "name": "web-community-cdn",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "mkdirp": "^0.5.1",
+    "node-yaml": "^3.0.3",
+    "request": "^2.79.0",
+    "request-promise-native": "^1.0.3"
+  }
+}
