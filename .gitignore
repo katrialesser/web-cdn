@@ -1,0 +1,11 @@
+node_modules/
+
+# IDE files
+## Jetbrains
+.idea/
+*.iml
+## VS Code
+.vscode/
+
+
+
