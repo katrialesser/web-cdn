@@ -1,3 +1,5 @@
 ---
 demo-lib:
   source: github:ThatJoeMoore/byu-web-cdn-demo-lib
+#2017-core:
+#  source: github:byuweb/2017-components
