@@ -86,7 +86,7 @@ function populateVersions(dataSet) {
 
 function computeAliases(dataSet) {
     return dataSet.promiseAll(lib => {
-        let verNums = lib.versions.map(each => each.ver).filter(semver.valid);
+        let verNums = lib.versions.map(each => each.name).filter(semver.valid);
         let desired = computeDesiredAliases(verNums);
         lib.aliases = [...desired].reduce((obj, alias) => {
             obj[alias] = semver.maxSatisfying(verNums, alias);
