@@ -12,7 +12,7 @@
           "name": "unstable",
           "tag": "master",
           "tarball": "https://api.github.com/repos/ThatJoeMoore/byu-web-cdn-demo-lib/tarball/master",
-          "git_sha": "b8bccbdfbfe5404eaf494c0bbcb5b4d7d3324324",
+          "git_sha": "initial",
           "resources": {
             "demo.js": {
               "entrypoint": true,
@@ -34,19 +34,19 @@
           "name": "1.0.1",
           "tag": "v1.0.1",
           "tarball": "https://api.github.com/repos/ThatJoeMoore/byu-web-cdn-demo-lib/tarball/v1.0.1",
-          "git_sha": "c54824b2f4da3a20ccae9e1645d394eb067e2611"
+          "git_sha": "initial"
         },
         {
           "name": "1.0.0",
           "tag": "v1.0.0",
           "tarball": "https://api.github.com/repos/ThatJoeMoore/byu-web-cdn-demo-lib/tarball/v1.0.0",
-          "git_sha": "d3f2d44cbf735addb16df6552239dfd5b4b4a50a"
+          "git_sha": "initial"
         },
         {
           "name": "1.1.0",
           "tag": "1.1.0",
           "tarball": "https://api.github.com/repos/ThatJoeMoore/byu-web-cdn-demo-lib/tarball/1.1.0",
-          "git_sha": "b8bccbdfbfe5404eaf494c0bbcb5b4d7d3324324"
+          "git_sha": "initial"
         }
       ]
     }
