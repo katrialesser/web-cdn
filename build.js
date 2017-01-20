@@ -4,9 +4,14 @@
 const proc = require('child_process');
 const yaml = require('node-yaml');
 const path = require('path');
+const fsp = require('fs-extra-p');
 const fs = require('fs-extra');
 const semver = require('semver');
 const decompress = require('decompress');
+const cpx = require('cpx');
+const klaw = require('klaw-sync');
+const crypto = require('crypto');
+const zlib = require('zlib');
 const fetcherDefs = require('./lib/fetchers.js');
 
 const config = yaml.readSync('main-config.yml');
@@ -15,10 +20,6 @@ const libs = Object.getOwnPropertyNames(config);
 
 const scratch = path.join(process.cwd(), '.tmp');
 const contentScratch = path.join(scratch, 'content');
-fs.emptyDirSync(scratch);
-if (proc.execSync('git worktree list').indexOf(contentScratch) !== -1) {
-    proc.execSync('git worktree prune');
-}
 
 const dataSetOps = {};
 
@@ -57,6 +58,7 @@ dataSetOps.promiseAllLibVersions = function (fun) {
 
 //The core logic of this build is promise-based.  Each function should take in and resolve the complete data set.
 createDataSet()
+    .then(prepareScratch)
     .then(populateVersions)
     .then(computeAliases)
     .then(populateConfigs)
@@ -93,7 +95,23 @@ function createDataSet() {
         };
     });
 
-    return Promise.resolve(obj);
+    return fsp.readJson('package.json')
+        .then(pack => obj.cdnVersion = pack.version)
+        .then(() => obj)
+        ;
+}
+
+function prepareScratch(dataSet) {
+    console.log('preparing scratch dir:', scratch);
+    return fsp.emptyDir(scratch)
+        .then(() => {
+            if (proc.execSync('git worktree list').indexOf(contentScratch) !== -1) {
+                console.log('pruning worktree at', contentScratch);
+                proc.execSync('git worktree prune');
+            }
+            console.log('done preparing scratch dir');
+            return dataSet;
+        });
 }
 
 function fetcherFor(source) {
@@ -113,7 +131,9 @@ function fetcherFor(source) {
 }
 
 function populateVersions(dataSet) {
+    console.log('populating library versions');
     return dataSet.promiseAllLibs(lib => {
+        console.log('fetching versions for', lib.id);
         return lib.fetcher.availableVersions()
             .then(vers => {
                 lib.versions = vers;
@@ -124,14 +144,18 @@ function populateVersions(dataSet) {
 
 function populateConfigs(dataSet) {
     return dataSet.promiseAllLibs(lib => {
+        console.log(`fetching configs for ${lib.id}`);
         return Promise.all(
             lib.versions.map(version => {
+                console.log(`fetching version config for ${version.name}`);
                 return lib.fetcher.fetchConfig(version.ref)
                     .then(config => {
                         version.config = config;
                     });
             })
         ).then(() => {
+            console.log(`finished fetching configs for ${lib.id}`);
+            console.log(`latest version is ${lib.aliases.latest}, using it for global config`);
             let latest = lib.versions.find(each => each.name === lib.aliases.latest).config;
             lib.display = {
                 name: latest.name,
@@ -144,6 +168,7 @@ function populateConfigs(dataSet) {
 
 function computeAliases(dataSet) {
     return dataSet.promiseAllLibs(lib => {
+        console.log(`computing aliases for ${lib.id}`);
         let verNums = lib.versions.map(each => each.name).filter(semver.valid);
         let desired = computeDesiredAliases(verNums);
         lib.aliases = [...desired].reduce((obj, alias) => {
@@ -152,6 +177,7 @@ function computeAliases(dataSet) {
         }, {
             latest: verNums.reduce((max, each) => semver.gt(each, max) ? each : max, "0.0.0")
         });
+        console.log('computed aliases', lib.aliases);
     });
 
     function computeDesiredAliases(versionNames) {
@@ -166,6 +192,7 @@ function computeAliases(dataSet) {
 }
 
 function checkoutContent() {
+    console.log('Checking out `content` branch');
     return new Promise((resolve, reject) =>
         proc.exec(`git worktree add ${contentScratch} content`, {
             cwd: scratch
@@ -176,21 +203,33 @@ function checkoutContent() {
 }
 
 function loadContentManifest(dataSet) {
-    return new Promise((resolve, reject) => {
-        fs.readJson(path.join(contentScratch, 'manifest.json'), (err, manifest) => {
-            if (err) reject(err);
-            else {
-                dataSet.manifest = manifest;
-                resolve(dataSet);
-            }
+    console.log('Loading content manifest');
+    return fsp.readJson(path.join(contentScratch, 'manifest.json'))
+        .then((manifest) => {
+            console.log('finished reading manifest');
+            dataSet.manifest = manifest;
+            return dataSet;
         });
-    });
 }
 
 function findNecessaryUpdates(dataSet) {
+    console.log('computing necessary updates');
     let manifest = dataSet.manifest;
+    let oldVersion = manifest['$cdn-version'];
+    console.log(`old contents were built with ${oldVersion}`);
+    //If the CDN software has changed, REBUILD ALL THE THINGS!
+    if (manifest['$cdn-version'] !== dataSet.cdnVersion) {
+        console.log('old contents were build with an older version; rebuilding everything');
+        dataSet.forEachLibVersion((lib, version) => {
+            version.needsUpdate = true;
+        });
+        return Promise.resolve(dataSet);
+    }
+
     let manifestLibs = manifest.libraries;
     dataSet.forEachLibVersion((lib, version) => {
+        let update = needsUpdate(lib, version);
+        if (update) console.log(`${lib.id} ${version.name} needs an update`);
         version.needsUpdate = needsUpdate(lib, version);
     });
     return Promise.resolve(dataSet);
@@ -222,59 +261,146 @@ function findNecessaryUpdates(dataSet) {
 }
 
 function applyUpdates(dataSet) {
+    console.log('Applying Updates');
     let updates = [];
     dataSet.forEachLibVersion((lib, version) => {
         if (!version.needsUpdate) return;
-
         updates.push({
             lib: lib,
-            version: version
+            version: version,
+            name: `${lib.id} ${version.name}`
         });
     });
 
-    let promises = updates.map(u =>
-        Promise.resolve(u)
-            .then(fetchTarball)
-            .then(decompressTarball)
-    );
+    let getTarballs =
+        Promise.all(updates.map(fetchTarball));
 
-    return Promise.all(promises);
+    let runUpdates = updates.reduce((p, u) =>
+            p.then(() => {
+                console.log('=================================');
+                console.log(`Starting update of ${u.name}`);
+                console.log('=================================');
+                return Promise.resolve(u);
+            })
+                .then(decompressTarball)
+                .then(copyFiles)
+                .then()
+        , getTarballs);
+
+    return runUpdates
+        .then(() => dataSet)
+        .then(buildManifest);
 }
 
 function fetchTarball(update) {
     let libPath = path.join(scratch, 'tarballs', update.lib.id);
-    update.tarpath = path.join(libPath, update.version.name + '.tgz');
+    let tarball = update.version.tarball;
 
-    return new Promise((resolve, reject) => {
-        fs.ensureDir(libPath, err => {
-            if (err) reject(err);
-            else resolve(update.tarpath);
-        });
+    let dest = update.tarpath = path.join(libPath, update.version.name + '.tgz');
+
+    console.log(`downloading ${tarball} to ${dest}`);
+
+    return fsp.ensureDir(libPath).then(() => {
+        return update.lib.fetcher.fetchTarball(tarball, dest);
     }).then(() => {
-        return update.lib.fetcher.fetchTarball(update.version.tarball, update.tarpath);
-    }).then(() => {
+        console.log(`Finished downloading ${tarball}`);
         return update;
     });
 }
 
 function decompressTarball(update) {
-    update.workpath = path.join(scratch, 'work', update.lib.id, update.version.name);
+    let tar = update.tarpath;
+    let dest = update.workpath = path.join(scratch, 'work', update.lib.id, update.version.name);
 
-    return new Promise((resolve, reject) => {
-        fs.emptyDir(update.workpath, (err) => {
-            if (err) reject(err);
-            else resolve();
-        })
-    })
-        .then(() => decompress(update.tarpath, update.workpath, {
-            map: file => {
-                let p = file.path;
-                file.path = p.substr(p.indexOf(path.sep));
-                return file;
+    return fsp.emptyDir(dest)
+        .then(() => {
+                console.log(`decompressing ${tar} to ${dest}`);
+                return decompress(tar, dest, {
+                    map: file => {
+                        let p = file.path;
+                        file.path = p.substr(p.indexOf(path.sep));
+                        return file;
+                    }
+                });
             }
-        }))
-        // .then(data => console.log(data))
-        .then(() => update);
+        ).then(() => {
+            console.log(`finished decompressing ${tar}`);
+            return update;
+        });
 }
 
+function copyFiles(update) {
+    let base = update.version.contentPath;
+    console.log(`copying files for ${update.lib.id} ${update.version.name} to ${base}`)
+    return fsp.emptyDir(base)
+        .then(() => {
+            return Promise.all(
+                update.version.config.resourceMappings.map(r => {
+                    let dest = r.dest ? path.join(base, r.dest) : base;
+                    console.log(`copying ${r.src} to ${dest}`);
+                    return new Promise((resolve, reject) => {
+                        cpx.copy(path.join(update.workpath, r.src), dest, err => {
+                            if (err) reject(err);
+                            else resolve();
+                        })
+                    });
+                })
+            );
+        })
+        .then(() => {
+            let sha = update.version.git_sha;
+            console.log(`writing .git-sha for ${update.name} (${sha})`);
+            return fsp.writeFile(path.join(base, '.git-sha'), sha);
+        })
+        .then(() => update)
+        ;
+}
 
+function buildManifest(dataSet) {
+    let manifest = {
+        '$cdn-version': dataSet.cdnVersion,
+        '$built': new Date().toISOString(),
+        libraries: dataSet.libs.reduce((result, lib) => {
+            let l = result[lib.id] = {
+                name: lib.display.name,
+                description: lib.display.description,
+                docs_url: lib.display.docs,
+                source: lib.source
+            };
+
+            l.versions = lib.versions.map(version => {
+                let v = {
+                    name: version.name,
+                    ref: version.ref,
+                    tarball: version.tarball,
+                    git_sha: version.git_sha,
+                    link: lib.fetcher.viewRefUrl(version.ref)
+                };
+                let resources = klaw(version.contentPath, {
+                    ignore: '.git-sha'
+                }).filter(f => f.stats.isFile());
+
+                v.resources = resources.reduce((res, f) => {
+                    let p = path.relative(version.contentPath, f.path);
+                    let ep = version.config.entrypoints[p];
+                    res[p] = {
+                        entrypoint: !!ep,
+                        description: ep,
+                        size: f.stats.size,
+                        gzipped_size: zlib.gzipSync(fs.readFileSync(f.path)).length
+                    };
+                    return res;
+                }, {});
+                return v;
+            });
+
+            return result;
+        }, {})
+    };
+
+    dataSet.newManifest = manifest;
+    console.log('writing new manifest');
+    return fsp.writeJson(path.join(contentScratch, 'manifest.json'),
+        manifest
+    ).then(() => dataSet);
+}
