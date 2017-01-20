@@ -1,4 +1,7 @@
+.github-api-key
+
 node_modules/
+.tmp/
 
 # IDE files
 ## Jetbrains
