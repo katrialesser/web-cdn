@@ -6,6 +6,7 @@ const yaml = require('node-yaml');
 const path = require('path');
 const fs = require('fs-extra');
 const semver = require('semver');
+const decompress = require('decompress');
 const fetcherDefs = require('./lib/fetchers.js');
 
 const config = yaml.readSync('main-config.yml');
@@ -234,6 +235,7 @@ function applyUpdates(dataSet) {
     let promises = updates.map(u =>
         Promise.resolve(u)
             .then(fetchTarball)
+            .then(decompressTarball)
     );
 
     return Promise.all(promises);
@@ -253,6 +255,26 @@ function fetchTarball(update) {
     }).then(() => {
         return update;
     });
+}
+
+function decompressTarball(update) {
+    update.workpath = path.join(scratch, 'work', update.lib.id, update.version.name);
+
+    return new Promise((resolve, reject) => {
+        fs.emptyDir(update.workpath, (err) => {
+            if (err) reject(err);
+            else resolve();
+        })
+    })
+        .then(() => decompress(update.tarpath, update.workpath, {
+            map: file => {
+                let p = file.path;
+                file.path = p.substr(p.indexOf(path.sep));
+                return file;
+            }
+        }))
+        // .then(data => console.log(data))
+        .then(() => update);
 }
 
 
