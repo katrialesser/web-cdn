@@ -190,7 +190,7 @@ function computeAliases(dataSet) {
 function checkoutContent() {
     console.log('Checking out `content` branch');
     let tar = path.join(scratch, 'old-content.tgz');
-    return github.getTarball('byuweb', 'cdn', 'content', tar)
+    return github.getTarball('byuweb', 'web-cdn', 'content', tar)
         .then(() => {
             return untar(tar, contentScratch);
         });
