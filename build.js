@@ -8,6 +8,7 @@ const fsp = require('fs-extra-p');
 const fs = require('fs-extra');
 const semver = require('semver');
 const decompress = require('decompress');
+const github = require('./lib/github');
 const cpx = require('cpx');
 const klaw = require('klaw-sync');
 const crypto = require('crypto');
@@ -105,11 +106,6 @@ function prepareScratch(dataSet) {
     console.log('preparing scratch dir:', scratch);
     return fsp.emptyDir(scratch)
         .then(() => {
-            if (proc.execSync('git worktree list').indexOf(contentScratch) !== -1) {
-                console.log('pruning worktree at', contentScratch);
-                proc.execSync('git worktree prune');
-            }
-            console.log('done preparing scratch dir');
             return dataSet;
         });
 }
@@ -193,13 +189,11 @@ function computeAliases(dataSet) {
 
 function checkoutContent() {
     console.log('Checking out `content` branch');
-    return new Promise((resolve, reject) =>
-        proc.exec(`git worktree add ${contentScratch} content`, {
-            cwd: scratch
-        }, (err) => {
-            if (err) reject(err);
-            else resolve();
-        }));
+    let tar = path.join(scratch, 'old-content.tgz');
+    return github.getTarball('byuweb', 'cdn', 'content', tar)
+        .then(() => {
+            return untar(tar, contentScratch);
+        });
 }
 
 function loadContentManifest(dataSet) {
@@ -312,20 +306,24 @@ function decompressTarball(update) {
     let tar = update.tarpath;
     let dest = update.workpath = path.join(scratch, 'work', update.lib.id, update.version.name);
 
-    return fsp.emptyDir(dest)
+    return untar(tar, dest)
         .then(() => {
-                console.log(`decompressing ${tar} to ${dest}`);
-                return decompress(tar, dest, {
-                    map: file => {
-                        let p = file.path;
-                        file.path = p.substr(p.indexOf(path.sep));
-                        return file;
-                    }
-                });
-            }
-        ).then(() => {
             console.log(`finished decompressing ${tar}`);
             return update;
+        });
+}
+
+function untar(tar, dest) {
+    return fsp.emptyDir(dest)
+        .then(() => {
+            console.log(`decompressing ${tar} to ${dest}`);
+            return decompress(tar, dest, {
+                map: file => {
+                    let p = file.path;
+                    file.path = p.substr(p.indexOf(path.sep));
+                    return file;
+                }
+            });
         });
 }
 
@@ -367,6 +365,7 @@ function buildManifest(dataSet) {
                 docs_url: lib.display.docs,
                 source: lib.source
             };
+            l.aliases = lib.aliases;
 
             l.versions = lib.versions.map(version => {
                 let v = {
