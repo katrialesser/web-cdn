@@ -1,6 +1,6 @@
 {
-  "$cdn-version": "1.0.0",
-  "$built": "2017-01-24T00:32:16.472Z",
+  "$cdn-version": "1.0.0-add-symlinks",
+  "$built": "2017-01-24T01:08:25.221Z",
   "libraries": {
     "demo-lib": {
       "name": "CDN Demo Library",
