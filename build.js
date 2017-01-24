@@ -424,12 +424,6 @@ function commitContent(dataSet) {
     let base = contentScratch;
     let blobs = [];
 
-    // return github.uploadBlob('byuweb', 'web-cdn', path.join(base, 'demo-lib', '1.0.0', '.git-sha'))
-    //     .then(sha => {
-    //         console.log('created blob', sha);
-    //         return dataSet;
-    //     })
-
     return dataSet.promiseAllLibVersions((version, lib) => {
         if (!version.needsUpdate) return;
         let files = klaw(version.contentPath, {nodir: true}).map(f => f.path);
@@ -450,46 +444,67 @@ function commitContent(dataSet) {
                     });
             })
         );
+    }).then(() => {
+        dataSet.forEachLib(lib => {
+            forEachKeyIn(lib.aliases, (name, value) => {
+                blobs.push({
+                    path: path.join(lib.id, name),
+                    mode: '120000',
+                    type: 'blob',
+                    content: value + '/'
+                });
+            });
+        });
     })
-        .then(() => {
-            console.log('Creating blob for manifest');
-            return github.uploadBlob('byuweb', 'web-cdn', path.join(base, 'manifest.json'))
-                .then(id => {
-                    blobs.push({
-                        path: 'manifest.json',
-                        mode: '100644',
-                        type: 'blob',
-                        sha: id
-                    });
-                })
-        })
-        .then(() => {
-            console.log('creating tree from blobs', blobs);
-            return github.createTree('byuweb', 'web-cdn', dataSet.contentCommit.tree, blobs)
-        })
-        .then(tree => {
-            console.log(`Creating commit from tree ${tree}`);
-            return github.createCommit('byuweb', 'web-cdn', {
-                message: 'Update CDN Contents',
-                tree: tree,
-                parents: [dataSet.contentCommit.sha],
-                committer: {
-                    name: 'CDN Build Bot',
-                    email: 'web-community-cdn-build-bot@byu.net'
-                },
-                author: {
-                    name: 'CDN Build Bot',
-                    email: 'web-community-cdn-build-bot@byu.net'
-                }
-            }).then(commit => {
-                console.log(`========= Created commit ${commit} =========`);
-                return commit;
+    .then(() => {
+        console.log('Creating blob for manifest');
+        return github.uploadBlob('byuweb', 'web-cdn', path.join(base, 'manifest.json'))
+            .then(id => {
+                blobs.push({
+                    path: 'manifest.json',
+                    mode: '100644',
+                    type: 'blob',
+                    sha: id
+                });
             })
+    })
+    .then(() => {
+        console.log('creating tree from blobs', blobs);
+        return github.createTree('byuweb', 'web-cdn', dataSet.contentCommit.tree, blobs)
+    })
+    .then(tree => {
+        console.log(`Creating commit from tree ${tree}`);
+        return github.createCommit('byuweb', 'web-cdn', {
+            message: 'Update CDN Contents',
+            tree: tree,
+            parents: [dataSet.contentCommit.sha],
+            committer: {
+                name: 'CDN Build Bot',
+                email: 'web-community-cdn-build-bot@byu.net'
+            },
+            author: {
+                name: 'CDN Build Bot',
+                email: 'web-community-cdn-build-bot@byu.net'
+            }
+        }).then(commit => {
+            console.log(`========= Created commit ${commit} =========`);
+            return commit;
         })
-        .then(commit => {
-            console.log(`Updating heads/content to ${commit}`);
-            return github.updateRef('byuweb', 'web-cdn', 'heads/content', commit)
-        })
+    })
+    .then(commit => {
+        console.log(`Updating heads/content to ${commit}`);
+        return github.updateRef('byuweb', 'web-cdn', 'heads/content', commit)
+    })
         .then(() => dataSet);
 }
 
+function forEachKeyIn(object, func) {
+    let names = Object.getOwnPropertyNames(object);
+    names.forEach(n => func(n, object[n]))
+}
+
+
+function mapKeysIn(object, func) {
+    let names = Object.getOwnPropertyNames(object);
+    return names.map(n => func(n, object[n]))
+}
