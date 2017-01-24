@@ -1,52 +1,127 @@
 {
   "$cdn-version": "1.0.0",
-  "$built": "timestamp",
+  "$built": "2017-01-24T00:32:16.472Z",
   "libraries": {
     "demo-lib": {
       "name": "CDN Demo Library",
       "description": "You shouldn't ever actually depend on this incredibly undependable library.",
-      "docs_url": "",
+      "docs_url": "https://github.com/ThatJoeMoore/byu-web-cdn-demo-lib",
       "source": "github:ThatJoeMoore/byu-web-cdn-demo-lib",
+      "aliases": {
+        "latest": "2.0.0",
+        "1.x.x": "1.1.0",
+        "1.0.x": "1.0.1",
+        "2.x.x": "2.0.0",
+        "2.0.x": "2.0.0",
+        "1.1.x": "1.1.0"
+      },
       "versions": [
         {
           "name": "unstable",
-          "tag": "master",
+          "ref": "master",
           "tarball": "https://api.github.com/repos/ThatJoeMoore/byu-web-cdn-demo-lib/tarball/master",
-          "git_sha": "initial",
+          "git_sha": "4bd85c03df8d234a58e43543de9be54e94c5a40e",
+          "link": "https://github.com/ThatJoeMoore/byu-web-cdn-demo-lib/tree/master",
           "resources": {
             "demo.js": {
               "entrypoint": true,
-              "description": "The main file!",
-              "md5": "asfasdfasdfasdf",
-              "sha512": "asdfasfasfdadsfasdfasdf"
+              "description": "Main Entrypoint",
+              "size": 64,
+              "gzipped_size": 82
             },
             "relocated/some-file.txt": {
-              "md5": "asfasdfasdfasdf",
-              "sha512": "asdfasfasfdadsfasdfasdf"
+              "entrypoint": false,
+              "size": 9,
+              "gzipped_size": 29
             },
             "relocated/test-styles.css": {
-              "md5": "asfasdfasdfasdf",
-              "sha512": "asdfasfasfdadsfasdfasdf"
+              "entrypoint": true,
+              "description": "Styles!",
+              "size": 87,
+              "gzipped_size": 99
             }
           }
         },
         {
           "name": "1.0.1",
-          "tag": "v1.0.1",
+          "ref": "v1.0.1",
           "tarball": "https://api.github.com/repos/ThatJoeMoore/byu-web-cdn-demo-lib/tarball/v1.0.1",
-          "git_sha": "initial"
+          "git_sha": "38d6b66980fc2a94b5e629564a8980cc01f6dc5b",
+          "link": "https://github.com/ThatJoeMoore/byu-web-cdn-demo-lib/tree/v1.0.1",
+          "resources": {
+            "demo.js": {
+              "entrypoint": true,
+              "description": "Main Entrypoint",
+              "size": 71,
+              "gzipped_size": 89
+            }
+          }
         },
         {
           "name": "1.0.0",
-          "tag": "v1.0.0",
+          "ref": "v1.0.0",
           "tarball": "https://api.github.com/repos/ThatJoeMoore/byu-web-cdn-demo-lib/tarball/v1.0.0",
-          "git_sha": "initial"
+          "git_sha": "bab571b9596eeaea13fc11dfb215615b837bba3c",
+          "link": "https://github.com/ThatJoeMoore/byu-web-cdn-demo-lib/tree/v1.0.0",
+          "resources": {
+            "demo.js": {
+              "entrypoint": true,
+              "description": "Main Entrypoint",
+              "size": 71,
+              "gzipped_size": 89
+            }
+          }
+        },
+        {
+          "name": "2.0.0",
+          "ref": "2.0.0",
+          "tarball": "https://api.github.com/repos/ThatJoeMoore/byu-web-cdn-demo-lib/tarball/2.0.0",
+          "git_sha": "00f3c6b200c7a97c8ccf5ce6b53540af5db435af",
+          "link": "https://github.com/ThatJoeMoore/byu-web-cdn-demo-lib/tree/2.0.0",
+          "resources": {
+            "demo.js": {
+              "entrypoint": true,
+              "description": "Main Entrypoint",
+              "size": 71,
+              "gzipped_size": 89
+            },
+            "relocated/some-file.txt": {
+              "entrypoint": false,
+              "size": 9,
+              "gzipped_size": 29
+            },
+            "relocated/test-styles.css": {
+              "entrypoint": true,
+              "description": "Styles!",
+              "size": 87,
+              "gzipped_size": 99
+            }
+          }
         },
         {
           "name": "1.1.0",
-          "tag": "1.1.0",
+          "ref": "1.1.0",
           "tarball": "https://api.github.com/repos/ThatJoeMoore/byu-web-cdn-demo-lib/tarball/1.1.0",
-          "git_sha": "initial"
+          "git_sha": "288536ecb4a4f0a6c128db208a4d5b46a012ba91",
+          "link": "https://github.com/ThatJoeMoore/byu-web-cdn-demo-lib/tree/1.1.0",
+          "resources": {
+            "demo.js": {
+              "entrypoint": true,
+              "description": "Main Entrypoint",
+              "size": 71,
+              "gzipped_size": 89
+            },
+            "some-file.txt": {
+              "entrypoint": false,
+              "size": 9,
+              "gzipped_size": 29
+            },
+            "test-styles.css": {
+              "entrypoint": false,
+              "size": 87,
+              "gzipped_size": 99
+            }
+          }
         }
       ]
     }
