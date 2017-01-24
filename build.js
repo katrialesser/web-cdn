@@ -49,12 +49,17 @@ dataSetOps.forEachLibVersion = function (fun) {
 };
 
 dataSetOps.promiseAllLibVersions = function (fun) {
+    let response = {};
     return this.promiseAllLibs(lib => {
+        let libResp = response[lib.id] = {};
         let vers = lib.versions;
         return Promise.all(
-            vers.map(v => Promise.resolve(fun(v, lib)))
+            vers.map(v => {
+                return Promise.resolve(fun(v, lib))
+                    .then(res => libResp[v.name] = res);
+            })
         );
-    });
+    }).then(() => response);
 };
 
 //The core logic of this build is promise-based.  Each function should take in and resolve the complete data set.
@@ -63,10 +68,11 @@ createDataSet()
     .then(populateVersions)
     .then(computeAliases)
     .then(populateConfigs)
-    .then(identityPromise(checkoutContent))
+    .then(checkoutContent)
     .then(loadContentManifest)
     .then(findNecessaryUpdates)
     .then(applyUpdates)
+    .then(commitContent)
     .then(ds => {
         // console.log(JSON.stringify(ds, null, 2));
         console.log(ds);
@@ -187,13 +193,23 @@ function computeAliases(dataSet) {
     }
 }
 
-function checkoutContent() {
+function checkoutContent(dataSet) {
     console.log('Checking out `content` branch');
     let tar = path.join(scratch, 'old-content.tgz');
     return github.getTarball('byuweb', 'web-cdn', 'content', tar)
         .then(() => {
             return untar(tar, contentScratch);
-        });
+        })
+        .then(() => {
+            return github.getLatestCommit('byuweb', 'web-cdn', 'content');
+        })
+        .then(latestCommit => {
+            dataSet.contentCommit = {
+                sha: latestCommit.sha,
+                tree: latestCommit.tree.sha
+            };
+        })
+        .then(() => dataSet);
 }
 
 function loadContentManifest(dataSet) {
@@ -403,3 +419,77 @@ function buildManifest(dataSet) {
         manifest
     ).then(() => dataSet);
 }
+
+function commitContent(dataSet) {
+    let base = contentScratch;
+    let blobs = [];
+
+    // return github.uploadBlob('byuweb', 'web-cdn', path.join(base, 'demo-lib', '1.0.0', '.git-sha'))
+    //     .then(sha => {
+    //         console.log('created blob', sha);
+    //         return dataSet;
+    //     })
+
+    return dataSet.promiseAllLibVersions((version, lib) => {
+        if (!version.needsUpdate) return;
+        let files = klaw(version.contentPath, {nodir: true}).map(f => f.path);
+
+        return Promise.all(
+            files.map(f => {
+                let relative = path.relative(base, f);
+                console.log(`Creating blob for ${relative}`);
+                return github.uploadBlob('byuweb', 'web-cdn', f)
+                    .then(id => {
+                        console.log(`Created blob for ${relative}: ${id}`);
+                        blobs.push({
+                            path: relative,
+                            mode: '100644',
+                            type: 'blob',
+                            sha: id
+                        });
+                    });
+            })
+        );
+    })
+        .then(() => {
+            console.log('Creating blob for manifest');
+            return github.uploadBlob('byuweb', 'web-cdn', path.join(base, 'manifest.json'))
+                .then(id => {
+                    blobs.push({
+                        path: 'manifest.json',
+                        mode: '100644',
+                        type: 'blob',
+                        sha: id
+                    });
+                })
+        })
+        .then(() => {
+            console.log('creating tree from blobs', blobs);
+            return github.createTree('byuweb', 'web-cdn', dataSet.contentCommit.tree, blobs)
+        })
+        .then(tree => {
+            console.log(`Creating commit from tree ${tree}`);
+            return github.createCommit('byuweb', 'web-cdn', {
+                message: 'Update CDN Contents',
+                tree: tree,
+                parents: [dataSet.contentCommit.sha],
+                committer: {
+                    name: 'CDN Build Bot',
+                    email: 'web-community-cdn-build-bot@byu.net'
+                },
+                author: {
+                    name: 'CDN Build Bot',
+                    email: 'web-community-cdn-build-bot@byu.net'
+                }
+            }).then(commit => {
+                console.log(`========= Created commit ${commit} =========`);
+                return commit;
+            })
+        })
+        .then(commit => {
+            console.log(`Updating heads/content to ${commit}`);
+            return github.updateRef('byuweb', 'web-cdn', 'heads/content', commit)
+        })
+        .then(() => dataSet);
+}
+
