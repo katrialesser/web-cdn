@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 "use strict";
 
+const DataSet = require('./lib/dataSet');
+const sources = require('./lib/sources');
+
 const proc = require('child_process');
 const yaml = require('node-yaml');
 const path = require('path');
@@ -25,6 +28,9 @@ const contentScratch = path.join(scratch, 'content');
 const dataSetOps = {};
 
 dataSetOps.forEachLib = function (fun) {
+    let toUse = includeIgnored ? this.libs : this.libs.filter(l => {
+            return l.versions.some(v => !!v.ignore)
+        });
     this.libs.forEach(fun);
 };
 
@@ -42,9 +48,11 @@ dataSetOps.promiseAllLibs = function (fun) {
     });
 };
 
-dataSetOps.forEachLibVersion = function (fun) {
-    this.libs.forEach(lib =>
-        lib.versions.forEach(ver => fun(lib, ver))
+dataSetOps.forEachLibVersion = function (fun, includeIgnored) {
+    this.libs.forEach(lib => {
+            let toUse = includeIgnored ? lib.versions : lib.versions.filter(v => !v.ignore);
+            toUse.forEach(ver => fun(lib, ver))
+        }
     );
 };
 
@@ -72,10 +80,11 @@ createDataSet()
     .then(loadContentManifest)
     .then(findNecessaryUpdates)
     .then(applyUpdates)
-    .then(commitContent)
+    // .then(commitContent)
     .then(ds => {
         // console.log(JSON.stringify(ds, null, 2));
-        console.log(ds);
+        fs.writeJsonSync('data-set.json', ds);
+        // console.log(ds);
     }, error => {
         console.error(error);
     })
@@ -88,24 +97,38 @@ function identityPromise(fun) {
     }
 }
 
-function createDataSet() {
-    let obj = Object.create(dataSetOps, {});
-    obj.libs = libs.map(lib => {
-        let source = config[lib].source;
-        return {
-            id: lib,
-            source: source,
-            versions: [],
-            aliases: {},
-            contentPath: path.join(contentScratch, lib),
-            fetcher: fetcherFor(source)
-        };
+function createDataSet(config) {
+    let confLibs = Object.getOwnPropertyNames(config);
+    let libs = confLibs.map(libId => {
+        let source = config[libId];
+        let sourceInfo = sources.getSourceInfo(source);
+        return DataSet.createLib(libId, sourceInfo, contentScratch);
     });
 
-    return fsp.readJson('package.json')
-        .then(pack => obj.cdnVersion = pack.version)
-        .then(() => obj)
-        ;
+    let ds = new DataSet(libs);
+    return ds.promiseAllLibs(lib => {
+
+    }, true)
+
+    // let obj = Object.create(dataSetOps, {});
+    // obj.libs = libs.map(lib => {
+    //     let source = config[lib].source;
+    //     return {
+    //         id: lib,
+    //         source: source,
+    //         versions: [],
+    //         aliases: {},
+    //         contentPath: path.join(contentScratch, lib),
+    //         fetcher: fetcherFor(source)
+    //     };
+    // });
+    //
+    // return fsp.readJson('package.json')
+    //     .then(pack => obj.cdnVersion = pack.version)
+    //     .then(() => obj)
+    //     ;
+    //
+    return Promise.resolve(config)
 }
 
 function prepareScratch(dataSet) {
@@ -456,45 +479,45 @@ function commitContent(dataSet) {
             });
         });
     })
-    .then(() => {
-        console.log('Creating blob for manifest');
-        return github.uploadBlob('byuweb', 'web-cdn', path.join(base, 'manifest.json'))
-            .then(id => {
-                blobs.push({
-                    path: 'manifest.json',
-                    mode: '100644',
-                    type: 'blob',
-                    sha: id
-                });
-            })
-    })
-    .then(() => {
-        console.log('creating tree from blobs', blobs);
-        return github.createTree('byuweb', 'web-cdn', dataSet.contentCommit.tree, blobs)
-    })
-    .then(tree => {
-        console.log(`Creating commit from tree ${tree}`);
-        return github.createCommit('byuweb', 'web-cdn', {
-            message: 'Update CDN Contents',
-            tree: tree,
-            parents: [dataSet.contentCommit.sha],
-            committer: {
-                name: 'CDN Build Bot',
-                email: 'web-community-cdn-build-bot@byu.net'
-            },
-            author: {
-                name: 'CDN Build Bot',
-                email: 'web-community-cdn-build-bot@byu.net'
-            }
-        }).then(commit => {
-            console.log(`========= Created commit ${commit} =========`);
-            return commit;
+        .then(() => {
+            console.log('Creating blob for manifest');
+            return github.uploadBlob('byuweb', 'web-cdn', path.join(base, 'manifest.json'))
+                .then(id => {
+                    blobs.push({
+                        path: 'manifest.json',
+                        mode: '100644',
+                        type: 'blob',
+                        sha: id
+                    });
+                })
         })
-    })
-    .then(commit => {
-        console.log(`Updating heads/content to ${commit}`);
-        return github.updateRef('byuweb', 'web-cdn', 'heads/content', commit)
-    })
+        .then(() => {
+            console.log('creating tree from blobs', blobs);
+            return github.createTree('byuweb', 'web-cdn', dataSet.contentCommit.tree, blobs)
+        })
+        .then(tree => {
+            console.log(`Creating commit from tree ${tree}`);
+            return github.createCommit('byuweb', 'web-cdn', {
+                message: 'Update CDN Contents',
+                tree: tree,
+                parents: [dataSet.contentCommit.sha],
+                committer: {
+                    name: 'CDN Build Bot',
+                    email: 'web-community-cdn-build-bot@byu.net'
+                },
+                author: {
+                    name: 'CDN Build Bot',
+                    email: 'web-community-cdn-build-bot@byu.net'
+                }
+            }).then(commit => {
+                console.log(`========= Created commit ${commit} =========`);
+                return commit;
+            })
+        })
+        .then(commit => {
+            console.log(`Updating heads/content to ${commit}`);
+            return github.updateRef('byuweb', 'web-cdn', 'heads/content', commit)
+        })
         .then(() => dataSet);
 }
 
