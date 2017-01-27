@@ -1,0 +1,42 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  Environment:
+    Type: String
+    Description: Deployment environment
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+Mappings:
+  DNSSubdomainMap:
+    prod:
+      root: cdn.byu.edu.
+    dev:
+      root: cdn-dev.byu.edu.
+Resources:
+  DNS:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Join [ " ", [ !Ref Environment, Web Community CDN DNS Zone ] ]
+      Name: !FindInMap [ DNSSubdomainMap, !Ref Environment, root ]
+      HostedZoneTags:
+      - Key: Name
+        Value: !Join [ " ", [ !FindInMap [ DNSSubdomainMap, !Ref Environment, root ], Web Community CDN DNS Zone ] ]
+      - Key: team
+        # This isn't necessarily accurate, but it's the best group I can find for it.
+        Value: OIT_APP_DEV__STUDENT_LIFE_APPS
+      - Key: env
+        Value: !Ref Environment
+      - Key: data-sensitivity
+        Value: public
+      - Key: app
+        Value: Web Community CDN
+Outputs:
+  DNSZone:
+    Description: DNS Zone ID
+    Value: !Ref DNS
+    Export:
+      Name: !Sub "${AWS::StackName}-DNS"
+
