@@ -5,3 +5,4 @@
 * [x] Push contents to Github
 * [ ] Push contents to Amazon S3
 * [ ] Generate website
+* [ ] Bundle into Lambda
