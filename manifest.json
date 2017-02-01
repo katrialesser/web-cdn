@@ -1,6 +1,6 @@
 {
   "$cdn-version": "0.3.0",
-  "$built": "2017-02-01T06:12:00.368Z",
+  "$built": "2017-02-01T20:39:51.412Z",
   "libraries": {
     "demo-lib": {
       "source": "github:ThatJoeMoore/byu-web-cdn-demo-lib",
@@ -306,6 +306,57 @@
                 "sha512": {
                   "base64": "KAMAsadkywKEpFRtZmoR5WPBMSJa2287SZR/Z/kQytimCoFmQxRkqgRlkMNYWjjR6Xwjqk9lv3vye/fTXuiYUA==",
                   "hex": "280300b1a764cb0284a4546d666a11e563c131225adb6f3b49947f67f910cad8a60a8166431464aa046590c3585a38d1e97c23aa4f65bf7bf27bf7d35ee89850"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "2017-core-components": {
+      "source": "github:byuweb/2017-components",
+      "aliases": {},
+      "versions": [
+        {
+          "name": "unstable",
+          "ref": "master",
+          "tarball_url": "https://api.github.com/repos/byuweb/2017-components/tarball/master",
+          "resources": {
+            "components-and-polyfills.es5.min.js": {
+              "entrypoint": false,
+              "size": 137389,
+              "gzip_size": 34849,
+              "hashes": {
+                "sha256": {
+                  "base64": "U3D+T3VZEMVvU0nMN4Nw/2+Hgzr/RmpNMVdvBv4A9qg=",
+                  "hex": "5370fe4f755910c56f5349cc378370ff6f87833aff466a4d31576f06fe00f6a8"
+                },
+                "sha384": {
+                  "base64": "rpYL6z1415o6KRk9xexNYRRnSiEXCAJUXZhVjGBwLoqzRVl0oUj9r+Kz2pNPlkVV",
+                  "hex": "ae960beb3d78d79a3a29193dc5ec4d6114674a21170802545d98558c60702e8ab3455974a148fdafe2b3da934f964555"
+                },
+                "sha512": {
+                  "base64": "WScS1bVv3C9zkqz4Ri79/7RGXzO6jZ8Wl1EzYmopDUHNT9uPjiCfKIE5PamimCCkYD1pusDd0girZuJhIg65bQ==",
+                  "hex": "592712d5b56fdc2f7392acf8462efdffb4465f33ba8d9f16975133626a290d41cd4fdb8f8e209f2881393da9a29820a4603d69bac0ddd208ab66e261220eb96d"
+                }
+              }
+            },
+            "components.js": {
+              "entrypoint": false,
+              "size": 48794,
+              "gzip_size": 11614,
+              "hashes": {
+                "sha256": {
+                  "base64": "rZ0OhCXWtBXzCu58YhuOYNCepGG8OqvkiZKD4xzMS5A=",
+                  "hex": "ad9d0e8425d6b415f30aee7c621b8e60d09ea461bc3aabe4899283e31ccc4b90"
+                },
+                "sha384": {
+                  "base64": "DuzMk/7OpAXOgCtMQQvXhPg7Gy343bjj+AjY4KI1c8ugEZjJn8hTVxXffbTcjWM5",
+                  "hex": "0eeccc93fecea405ce802b4c410bd784f83b1b2df8ddb8e3f808d8e0a23573cba01198c99fc8535715df7db4dc8d6339"
+                },
+                "sha512": {
+                  "base64": "3k4Ty69mRHfkkzrmMQIqI0tHh/XflBfD4mL2SwM9xFmSYwDtII1UgAnLzKR+Zuky95VNERfZx4yYG0gkB4Dg1w==",
+                  "hex": "de4e13cbaf664477e4933ae631022a234b4787f5df9417c3e262f64b033dc459926300ed208d548009cbcca47e66e932f7954d1117d9c78c981b48240780e0d7"
                 }
               }
             }
