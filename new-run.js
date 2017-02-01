@@ -3,8 +3,8 @@
 const CdnConfig = require('./lib/cdn-config');
 const fsp = require('fs-extra-p');
 const path = require('path');
-const buildFilesystem = require('./lib/build-filesystem');
-const commitContent = require('./lib/commit-content');
+const buildFilesystem = require('./lib/steps/build-filesystem');
+const commitContent = require('./lib/steps/commit-content');
 
 const SCRATCH_DIR_NAME = '.tmp';
 
