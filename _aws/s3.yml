@@ -1,0 +1,43 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  Environment:
+    Type: String
+    Description: Deployment environment
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+Mappings:
+  Bucket:
+    prod:
+      name: byu-web-community-cdn-prod
+    dev:
+      name: byu-web-community-cdn-dev
+Resources:
+  ContentBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      BucketName: !FindInMap [Bucket, !Ref Environment, name]
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+      - Key: Name
+        Value: !Join [ " ", [ !FindInMap [ Bucket, !Ref Environment, name ], Web Community CDN Bucket ] ]
+      - Key: team
+        # This isn't necessarily accurate, but it's the best group I can find for it.
+        Value: OIT_APP_DEV__STUDENT_LIFE_APPS
+      - Key: env
+        Value: !Ref Environment
+      - Key: data-sensitivity
+        Value: public
+      - Key: app
+        Value: Web Community CDN
+Outputs:
+  BucketName:
+    Description: S3 Bucket ARN
+    Value: !Ref ContentBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-Bucket"
+
