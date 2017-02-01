@@ -31,15 +31,17 @@ CdnConfig.loadFromConfig({
 
 
 configPromise.then(cfg => {
-    console.log(cfg);
-    return fsp.writeJson('./config.json', cfg)
-        .then(() => cfg);
-}).then(cfg => {
+//     console.log(cfg);
+//     return fsp.writeJson('./config.json', cfg)
+//         .then(() => cfg);
+// }).then(cfg => {
     return buildFilesystem(cfg, contentPath, workPath)
-        .then(changes => {
-            fsp.writeJsonSync('filesystem.json', changes);
-        })
-        // .then(() => commitContent(cfg, contentPath));
+    // return fsp.readJson('filesystem.json')
+        // .then(changes => {
+        //     fsp.writeJsonSync('filesystem.json', changes);
+        //     return changes;
+        // })
+        .then(changes => commitContent(cfg, changes, contentPath));
 }).catch(err => {
     console.error(err);
 });
