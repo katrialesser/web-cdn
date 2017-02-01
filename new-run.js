@@ -1,16 +1,17 @@
 "use strict";
 
 const CdnConfig = require('./lib/cdn-config');
-const fsp = require('fs-extra-p');
 const path = require('path');
 const buildFilesystem = require('./lib/steps/build-filesystem');
 const commitContent = require('./lib/steps/commit-content');
+const pushToS3 = require('./lib/steps/push-to-s3');
 
 const SCRATCH_DIR_NAME = '.tmp';
 
 const scratchPath = path.join(process.cwd(), SCRATCH_DIR_NAME);
 const contentPath = path.join(scratchPath, 'content');
 const workPath = path.join(scratchPath, 'work');
+const stagingPath = path.join(scratchPath, 's3-staging');
 
 
 /*
@@ -44,7 +45,11 @@ configPromise.then(cfg => {
         //     fsp.writeJsonSync('filesystem.json', changes);
         //     return changes;
         // })
-        .then(changes => commitContent(cfg, changes, contentPath));
+        .then(changes => {
+            return commitContent(cfg, changes, contentPath)
+                .then(() => pushToS3(contentPath, stagingPath, changes))
+        })
+    ;
 }).catch(err => {
     console.error(err);
 });

@@ -22,6 +22,8 @@ Resources:
       BucketName: !FindInMap [Bucket, !Ref Environment, name]
       VersioningConfiguration:
         Status: Enabled
+      WebsiteConfiguration:
+        IndexDocument: index.html
       Tags:
       - Key: Name
         Value: !Join [ " ", [ !FindInMap [ Bucket, !Ref Environment, name ], Web Community CDN Bucket ] ]
@@ -40,4 +42,9 @@ Outputs:
     Value: !Ref ContentBucket
     Export:
       Name: !Sub "${AWS::StackName}-Bucket"
+  WebsiteUrl:
+    Description: S3 Website URL
+    Value: !GetAtt [ContentBucket, WebsiteURL]
+    Export:
+      Name: !Sub "${AWS::StackName}-WebsiteUrl"
 
