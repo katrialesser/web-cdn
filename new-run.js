@@ -20,14 +20,14 @@ const workPath = path.join(scratchPath, 'work');
  * - Push Filesystem
  */
 let configPromise =
-// CdnConfig.loadFromConfig({
-//     "demo-lib": {
-//         source: "github:ThatJoeMoore/byu-web-cdn-demo-lib"
-//     }
-// });
-    fsp.readJson('config.json').then(cfg =>
-        new CdnConfig(cfg.libs, cfg.contentInfo)
-    );
+CdnConfig.loadFromConfig({
+    "demo-lib": {
+        source: "github:ThatJoeMoore/byu-web-cdn-demo-lib"
+    }
+});
+    // fsp.readJson('config.json').then(cfg =>
+    //     new CdnConfig(cfg.libs, cfg.contentInfo)
+    // );
 
 
 configPromise.then(cfg => {
@@ -36,7 +36,10 @@ configPromise.then(cfg => {
         .then(() => cfg);
 }).then(cfg => {
     return buildFilesystem(cfg, contentPath, workPath)
-        .then(() => commitContent(cfg, contentPath));
+        .then(changes => {
+            fsp.writeJsonSync('filesystem.json', changes);
+        })
+        // .then(() => commitContent(cfg, contentPath));
 }).catch(err => {
     console.error(err);
 });
