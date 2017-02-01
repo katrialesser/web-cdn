@@ -23,6 +23,9 @@ let configPromise =
 CdnConfig.loadFromConfig({
     "demo-lib": {
         source: "github:ThatJoeMoore/byu-web-cdn-demo-lib"
+    },
+    "2017-core-components": {
+        source: "github:byuweb/2017-components"
     }
 });
     // fsp.readJson('config.json').then(cfg =>
