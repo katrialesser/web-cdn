@@ -1,6 +1,6 @@
 {
   "$cdn-version": "0.3.0",
-  "$built": "2017-02-02T18:44:44.269Z",
+  "$built": "2017-02-02T22:54:02.453Z",
   "libraries": {
     "demo-lib": {
       "source": "github:ThatJoeMoore/byu-web-cdn-demo-lib",
@@ -276,16 +276,16 @@
               "gzip_size": 85,
               "hashes": {
                 "sha256": {
-                  "base64": "EguzTSLi/6gUyycmFvA4M3C/4W20DCpeI9Xa43wcLk4=",
-                  "hex": "120bb34d22e2ffa814cb272616f0383370bfe16db40c2a5e23d5dae37c1c2e4e"
+                  "base64": "aRrNImk48bcMv4V5M5mAFAZjL8hJDuPrJNFKOLz12G0=",
+                  "hex": "691acd226938f1b70cbf85793399801406632fc8490ee3eb24d14a38bcf5d86d"
                 },
                 "sha384": {
-                  "base64": "cYVj6UK5V3QE20LxahlY1lQuub/QUHyAeNHjAG7Xu47Axtf5i05ae9CT4UjnpeBd",
-                  "hex": "718563e942b9577404db42f16a1958d6542eb9bfd0507c8078d1e3006ed7bb8ec0c6d7f98b4e5a7bd093e148e7a5e05d"
+                  "base64": "bdkuPhoH/ZRBzNws3/xf7CC0Nr3qh27EGt4UJ1myE5FRERzXBg5I7Ow+3fyWn+DL",
+                  "hex": "6dd92e3e1a07fd9441ccdc2cdffc5fec20b436bdea876ec41ade142759b2139151111cd7060e48ecec3eddfc969fe0cb"
                 },
                 "sha512": {
-                  "base64": "KkQWTI7IlLmYw5nzD0x1qMohIOFdSfF1a29Brt2qHuNN8dLrbw8ct+qbLb39VO3kNt496pNKWpz1wn2f2gaqDQ==",
-                  "hex": "2a44164c8ec894b998c399f30f4c75a8ca2120e15d49f1756b6f41aeddaa1ee34df1d2eb6f0f1cb7ea9b2dbdfd54ede436de3dea934a5a9cf5c27d9fda06aa0d"
+                  "base64": "cTtGbN++fyc4gfhFbqF+NTNyBd0q9mNV1cQ2QEk6zMQfFEzcll37gdjTsJL+U6D9HQGpmT6peYjA0j8ad0ur7w==",
+                  "hex": "713b466cdfbe7f273881f8456ea17e35337205dd2af66355d5c43640493accc41f144cdc965dfb81d8d3b092fe53a0fd1d01a9993ea97988c0d23f1a774babef"
                 }
               }
             },
