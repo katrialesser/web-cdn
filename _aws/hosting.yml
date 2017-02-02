@@ -1,0 +1,94 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  Environment:
+    Type: String
+    Description: Deployment environment
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+  DNSStackName:
+    Type: String
+    Description: Stack name of the DNS Stack
+Mappings:
+  Bucket:
+    prod:
+      name: cdn.byu.edu
+    dev:
+      name: byu-web-community-cdn-dev
+  DNSSubdomainMap:
+    prod:
+      root: cdn.byu.edu.
+    dev:
+      root: cdn-dev.byu.edu.
+Resources:
+  ContentBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      BucketName: !FindInMap [Bucket, !Ref Environment, name]
+#      VersioningConfiguration:
+#        Status: Enabled
+      WebsiteConfiguration:
+        IndexDocument: index.html
+      Tags:
+      - Key: Name
+        Value: !Join [ " ", [ !FindInMap [ Bucket, !Ref Environment, name ], Web Community CDN Bucket ] ]
+      - Key: team
+        # This isn't necessarily accurate, but it's the best group I can find for it.
+        Value: OIT_APP_DEV__STUDENT_LIFE_APPS
+      - Key: env
+        Value: !Ref Environment
+      - Key: data-sensitivity
+        Value: public
+      - Key: app
+        Value: Web Community CDN
+  WebsiteCDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: CDN for S3-backed website
+#        Aliases:
+#         - !FindInMap [ DNSSubdomainMap, !Ref Environment, root ]
+        Enabled: 'true'
+        DefaultCacheBehavior:
+          ForwardedValues:
+            QueryString: 'true'
+          TargetOriginId: only-origin
+          ViewerProtocolPolicy: allow-all
+        DefaultRootObject: index.html
+        PriceClass: PriceClass_100
+        Origins:
+        - Id: only-origin
+          DomainName: !GetAtt [ ContentBucket, DomainName ]
+          S3OriginConfig:
+            OriginAccessIdentity: ''
+  WebsiteDNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: !FindInMap [ DNSSubdomainMap, !Ref Environment, root ]
+      Comment: DNS for CDN
+      RecordSets:
+        - Name: !FindInMap [ DNSSubdomainMap, !Ref Environment, root ]
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt [WebsiteCDN, DomainName]
+        - Name: !FindInMap [ DNSSubdomainMap, !Ref Environment, root ]
+          Type: AAAA
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt [WebsiteCDN, DomainName]
+Outputs:
+  WebsiteURL:
+    Value:
+      Fn::Join:
+      - ''
+      - - http://
+        - Ref: WebsiteDNS
+    Description: The URL of the newly created website
+  BucketName:
+    Value:
+      Ref: ContentBucket
+    Description: Name of S3 bucket to hold website content
