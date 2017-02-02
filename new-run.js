@@ -45,10 +45,12 @@ configPromise.then(cfg => {
         //     fsp.writeJsonSync('filesystem.json', changes);
         //     return changes;
         // })
-        .then(changes => {
-            return commitContent(cfg, changes, contentPath)
-                .then(() => pushToS3(contentPath, stagingPath, changes))
-        })
+        .then(changes =>
+            commitContent(cfg, changes, contentPath)
+                .then(() =>
+                    pushToS3(cfg, contentPath, stagingPath, changes)
+                )
+        )
     ;
 }).catch(err => {
     console.error(err);
