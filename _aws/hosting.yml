@@ -20,8 +20,10 @@ Mappings:
   DNSSubdomainMap:
     prod:
       root: cdn.byu.edu.
+      alias: cdn.byu.edu
     dev:
-      root: cdn-dev.byu.edu.
+      root: dev.cdn.byu.edu.
+      alias: dev.cdn.byu.edu
 Resources:
   ContentBucket:
     Type: AWS::S3::Bucket
@@ -49,10 +51,14 @@ Resources:
     Properties:
       DistributionConfig:
         Comment: CDN for S3-backed website
-#        Aliases:
-#         - !FindInMap [ DNSSubdomainMap, !Ref Environment, root ]
+        Aliases:
+         - !FindInMap [ DNSSubdomainMap, !Ref Environment, alias ]
         Enabled: 'true'
+        HttpVersion: http2
         DefaultCacheBehavior:
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          Compress: true
+          DefaultTTL: 3600
           ForwardedValues:
             QueryString: 'true'
           TargetOriginId: only-origin
