@@ -2,7 +2,7 @@
   "name": "web-community-cdn",
   "version": "0.3.0",
   "description": "",
-  "main": "build.js",
+  "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
