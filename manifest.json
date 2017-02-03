@@ -1,6 +1,6 @@
 {
   "$cdn-version": "0.3.0",
-  "$built": "2017-02-02T23:31:41.234Z",
+  "$built": "2017-02-03T00:44:01.869Z",
   "libraries": {
     "demo-lib": {
       "source": "github:ThatJoeMoore/byu-web-cdn-demo-lib",
@@ -374,7 +374,7 @@
         }
       ]
     },
-    "2017-core-components": {
+    "2017-core": {
       "source": "github:byuweb/2017-components",
       "aliases": {},
       "versions": [
