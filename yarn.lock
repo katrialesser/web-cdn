@@ -123,7 +123,15 @@ aws4@^1.2.1:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.5.0.tgz#0a29ffb79c31c9e712eeb087e8e7a64b4a56d755"
 
-babel-runtime@^6.9.2:
+babel-polyfill:
+  version "6.22.0"
+  resolved "https://registry.yarnpkg.com/babel-polyfill/-/babel-polyfill-6.22.0.tgz#1ac99ebdcc6ba4db1e2618c387b2084a82154a3b"
+  dependencies:
+    babel-runtime "^6.22.0"
+    core-js "^2.4.0"
+    regenerator-runtime "^0.10.0"
+
+babel-runtime@^6.22.0, babel-runtime@^6.9.2:
   version "6.22.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.22.0.tgz#1cf8b4ac67c77a4ddb0db2ae1f74de52ac4ca611"
   dependencies:
