@@ -1,16 +1,16 @@
 {
   "$cdn-version": "0.3.0",
-  "$built": "2017-02-03T00:44:01.869Z",
+  "$built": "2017-02-07T07:44:47.073Z",
   "libraries": {
     "demo-lib": {
       "source": "github:ThatJoeMoore/byu-web-cdn-demo-lib",
       "aliases": {
         "1.x.x": "1.1.0",
         "1.0.x": "1.0.1",
-        "2.x.x": "2.0.2",
-        "2.0.x": "2.0.2",
+        "2.x.x": "2.0.3",
+        "2.0.x": "2.0.3",
         "1.1.x": "1.1.0",
-        "latest": "2.0.2"
+        "latest": "2.0.3"
       },
       "versions": [
         {
@@ -66,6 +66,55 @@
                 "sha512": {
                   "base64": "j/ecxXK2XkjiInjMbmu1M8Ii9peUsNUs9rLeIh4WjxAzqKj4xtBxknLXMMw4AiY89quE5hD4Sl8i73yzZCV07A==",
                   "hex": "8ff79cc572b65e48e22278cc6e6bb533c222f69794b0d52cf6b2de221e168f1033a8a8f8c6d0719272d730cc3802263cf6ab84e610f84a5f22ef7cb3642574ec"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "2.0.3",
+          "ref": "2.0.3",
+          "tarball_url": "https://api.github.com/repos/ThatJoeMoore/byu-web-cdn-demo-lib/tarball/2.0.3",
+          "git_sha": "a165fca7fdb5cacb47daa8c3698e8603bb543e1a",
+          "link": "https://github.com/ThatJoeMoore/byu-web-cdn-demo-lib/tree/2.0.3",
+          "resources": {
+            "demo.js": {
+              "entrypoint": true,
+              "description": "Main Entrypoint",
+              "size": 67,
+              "gzip_size": 85,
+              "hashes": {
+                "sha256": {
+                  "base64": "aRrNImk48bcMv4V5M5mAFAZjL8hJDuPrJNFKOLz12G0=",
+                  "hex": "691acd226938f1b70cbf85793399801406632fc8490ee3eb24d14a38bcf5d86d"
+                },
+                "sha384": {
+                  "base64": "bdkuPhoH/ZRBzNws3/xf7CC0Nr3qh27EGt4UJ1myE5FRERzXBg5I7Ow+3fyWn+DL",
+                  "hex": "6dd92e3e1a07fd9441ccdc2cdffc5fec20b436bdea876ec41ade142759b2139151111cd7060e48ecec3eddfc969fe0cb"
+                },
+                "sha512": {
+                  "base64": "cTtGbN++fyc4gfhFbqF+NTNyBd0q9mNV1cQ2QEk6zMQfFEzcll37gdjTsJL+U6D9HQGpmT6peYjA0j8ad0ur7w==",
+                  "hex": "713b466cdfbe7f273881f8456ea17e35337205dd2af66355d5c43640493accc41f144cdc965dfb81d8d3b092fe53a0fd1d01a9993ea97988c0d23f1a774babef"
+                }
+              }
+            },
+            "relocated/test-styles.css": {
+              "entrypoint": true,
+              "description": "Styles!",
+              "size": 87,
+              "gzip_size": 99,
+              "hashes": {
+                "sha256": {
+                  "base64": "Gn9wGSZ72aMD18XUlUt5tVT2e5Wt71ss96PowGLZFa0=",
+                  "hex": "1a7f7019267bd9a303d7c5d4954b79b554f67b95adef5b2cf7a3e8c062d915ad"
+                },
+                "sha384": {
+                  "base64": "7tSNIifr1/3Jvec6n+hnoUexxHQisyzua0fVW5xYO1KVn9ybP2CljtLoKxHW/kYr",
+                  "hex": "eed48d2227ebd7fdc9bde73a9fe867a147b1c47422b32cee6b47d55b9c583b52959fdc9b3f60a58ed2e82b11d6fe462b"
+                },
+                "sha512": {
+                  "base64": "KAMAsadkywKEpFRtZmoR5WPBMSJa2287SZR/Z/kQytimCoFmQxRkqgRlkMNYWjjR6Xwjqk9lv3vye/fTXuiYUA==",
+                  "hex": "280300b1a764cb0284a4546d666a11e563c131225adb6f3b49947f67f910cad8a60a8166431464aa046590c3585a38d1e97c23aa4f65bf7bf27bf7d35ee89850"
                 }
               }
             }
@@ -374,7 +423,7 @@
         }
       ]
     },
-    "2017-core": {
+    "2017-core-components": {
       "source": "github:byuweb/2017-components",
       "aliases": {},
       "versions": [
