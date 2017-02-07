@@ -11,6 +11,10 @@ Parameters:
   DNSStackName:
     Type: String
     Description: Stack name of the DNS Stack
+  CertificateArn:
+    Type: String
+    Description: ARN of ACM certificate to use for SSL
+    Default: arn:aws:acm:us-east-1:427927161742:certificate/66066e1d-6aac-49f4-8b52-bd699547b8d6
 Mappings:
   Bucket:
     prod:
@@ -55,6 +59,9 @@ Resources:
          - !FindInMap [ DNSSubdomainMap, !Ref Environment, alias ]
         Enabled: 'true'
         HttpVersion: http2
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CertificateArn
+          SslSupportMethod: sni-only
         DefaultCacheBehavior:
           AllowedMethods: [GET, HEAD, OPTIONS]
           Compress: true
@@ -62,7 +69,7 @@ Resources:
           ForwardedValues:
             QueryString: 'true'
           TargetOriginId: only-origin
-          ViewerProtocolPolicy: allow-all
+          ViewerProtocolPolicy: redirect-to-https
         DefaultRootObject: index.html
         PriceClass: PriceClass_100
         Origins:

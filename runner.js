@@ -5,18 +5,30 @@ const path = require('path');
 const buildFilesystem = require('./lib/steps/build-filesystem');
 const commitContent = require('./lib/steps/commit-content');
 const pushToS3 = require('./lib/steps/push-to-s3');
+const os = require('os');
 
-const SCRATCH_DIR_NAME = '.tmp';
+/**
+ * @typedef {{}} runnerConfig
+ * @property {?string} tmpdir
+ */
 
-const scratchPath = path.join(process.cwd(), SCRATCH_DIR_NAME);
-const contentPath = path.join(scratchPath, 'content');
-const workPath = path.join(scratchPath, 'work');
-const stagingPath = path.join(scratchPath, 's3-staging');
+/**
+ *
+ * @param libraries
+ * @param runnerConfig
+ * @returns {Promise.<TResult>}
+ */
+module.exports = function runner(libraries, runnerConfig) {
+    runnerConfig = runnerConfig || {};
+    let tmpdir = runnerConfig.tmpdir || path.join(os.tmpdir(), 'cdn-build-scratch');
+
+    const contentPath = path.join(tmpdir, 'content');
+    const workPath = path.join(tmpdir, 'work');
+    const stagingPath = path.join(tmpdir, 's3-staging');
 
 
-module.exports = function runner(config) {
     //Step 1 - Build the config
-    return CdnConfig.loadFromConfig(config).then(cfg => {
+    return CdnConfig.loadFromConfig(libraries).then(cfg => {
         // Step 2 - Build the filesystem
         return buildFilesystem(cfg, contentPath, workPath).then(changes =>
             // Step 3 - Commit content to Github
@@ -25,7 +37,5 @@ module.exports = function runner(config) {
                 pushToS3(cfg, contentPath, stagingPath, changes)
             )
         );
-    }).catch(err => {
-        console.error(err);
     });
 };
