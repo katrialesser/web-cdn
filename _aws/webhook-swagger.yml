@@ -32,7 +32,9 @@ paths:
             {
               "source": "github",
               "callerIp": "$context.identity.sourceIp",
-              "event": $input.json('$')
+              "eventType": "$input.params('X-GitHub-Event')",
+              "eventId": "$input.params('X-GitHub-Delivery')",
+              "eventBody": $input.json('$')
             }
         uri: arn:aws:apigateway:us-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-west-2:427927161742:function:${stageVariables.GithubLambdaName}/invocations
         httpMethod: POST
