@@ -1,6 +1,6 @@
 {
   "$cdn-version": "0.3.0",
-  "$built": "2017-02-08T20:43:17.723Z",
+  "$built": "2017-02-08T21:16:42.241Z",
   "libraries": {
     "demo-lib": {
       "source": "github:ThatJoeMoore/byu-web-cdn-demo-lib",
@@ -376,26 +376,26 @@
           "name": "unstable",
           "ref": "master",
           "tarball_url": "https://api.github.com/repos/ThatJoeMoore/byu-web-cdn-demo-lib/tarball/master",
-          "git_sha": "066137ff031eee1f45f091e06fc0d3c808962d97",
+          "git_sha": "e29514150f12fb849fd97a7da5963d716846fcfc",
           "link": "https://github.com/ThatJoeMoore/byu-web-cdn-demo-lib/tree/master",
           "resources": {
             "demo.js": {
               "entrypoint": true,
               "description": "Main Entrypoint",
-              "size": 67,
-              "gzip_size": 85,
+              "size": 75,
+              "gzip_size": 93,
               "hashes": {
                 "sha256": {
-                  "base64": "jVZntRcJdP6rZaHVkjS+6butKoEHoELK5XEp0b+chvM=",
-                  "hex": "8d5667b5170974feab65a1d59234bee9bbad2a8107a042cae57129d1bf9c86f3"
+                  "base64": "iZ4jRORdOyc6aBojROSImrDzjlrP2TcoHPEmOPmEIoQ=",
+                  "hex": "899e2344e45d3b273a681a2344e4889ab0f38e5acfd937281cf12638f9842284"
                 },
                 "sha384": {
-                  "base64": "Ct1LDo+6QxdDJxOOwh5tJzlec1NHofJiyaStR4jQRLCcLCV+c7FdemtiDtl7lAwa",
-                  "hex": "0add4b0e8fba43174327138ec21e6d27395e735347a1f262c9a4ad4788d044b09c2c257e73b15d7a6b620ed97b940c1a"
+                  "base64": "MwG9gGCVrlOfERyP+jqpKGlD/1LFLGsNUuB0FDEaIYIT6MDQP+8N93ImGGS9c6VC",
+                  "hex": "3301bd806095ae539f111c8ffa3aa9286943ff52c52c6b0d52e07414311a218213e8c0d03fef0df772261864bd73a542"
                 },
                 "sha512": {
-                  "base64": "S9x/o7TMOecTpMVoyOkFCEfULcvLVgMkxKBreZio4nXRUXanIDAyU/lIefsgJwo25iWMCsc9MXbrgVhkcyOIBQ==",
-                  "hex": "4bdc7fa3b4cc39e713a4c568c8e9050847d42dcbcb560324c4a06b7998a8e275d15176a720303253f94879fb20270a36e6258c0ac73d3176eb81586473238805"
+                  "base64": "5NS4we1puWZ2QxBmKt8c76q+3Fvahwgi08ZOo/m8hHRP/RDZgcl1pLWK26uHr+vu+7MH3wax1+iDOw1vGP4TDA==",
+                  "hex": "e4d4b8c1ed69b966764310662adf1cefaabedc5bda870822d3c64ea3f9bc84744ffd10d981c975a4b58adbab87afebeefbb307df06b1d7e8833b0d6f18fe130c"
                 }
               }
             },
