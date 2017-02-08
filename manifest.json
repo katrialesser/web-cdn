@@ -1,6 +1,6 @@
 {
   "$cdn-version": "0.3.0",
-  "$built": "2017-02-07T07:44:47.073Z",
+  "$built": "2017-02-08T20:43:17.723Z",
   "libraries": {
     "demo-lib": {
       "source": "github:ThatJoeMoore/byu-web-cdn-demo-lib",
@@ -376,7 +376,7 @@
           "name": "unstable",
           "ref": "master",
           "tarball_url": "https://api.github.com/repos/ThatJoeMoore/byu-web-cdn-demo-lib/tarball/master",
-          "git_sha": "a165fca7fdb5cacb47daa8c3698e8603bb543e1a",
+          "git_sha": "066137ff031eee1f45f091e06fc0d3c808962d97",
           "link": "https://github.com/ThatJoeMoore/byu-web-cdn-demo-lib/tree/master",
           "resources": {
             "demo.js": {
@@ -386,16 +386,16 @@
               "gzip_size": 85,
               "hashes": {
                 "sha256": {
-                  "base64": "aRrNImk48bcMv4V5M5mAFAZjL8hJDuPrJNFKOLz12G0=",
-                  "hex": "691acd226938f1b70cbf85793399801406632fc8490ee3eb24d14a38bcf5d86d"
+                  "base64": "jVZntRcJdP6rZaHVkjS+6butKoEHoELK5XEp0b+chvM=",
+                  "hex": "8d5667b5170974feab65a1d59234bee9bbad2a8107a042cae57129d1bf9c86f3"
                 },
                 "sha384": {
-                  "base64": "bdkuPhoH/ZRBzNws3/xf7CC0Nr3qh27EGt4UJ1myE5FRERzXBg5I7Ow+3fyWn+DL",
-                  "hex": "6dd92e3e1a07fd9441ccdc2cdffc5fec20b436bdea876ec41ade142759b2139151111cd7060e48ecec3eddfc969fe0cb"
+                  "base64": "Ct1LDo+6QxdDJxOOwh5tJzlec1NHofJiyaStR4jQRLCcLCV+c7FdemtiDtl7lAwa",
+                  "hex": "0add4b0e8fba43174327138ec21e6d27395e735347a1f262c9a4ad4788d044b09c2c257e73b15d7a6b620ed97b940c1a"
                 },
                 "sha512": {
-                  "base64": "cTtGbN++fyc4gfhFbqF+NTNyBd0q9mNV1cQ2QEk6zMQfFEzcll37gdjTsJL+U6D9HQGpmT6peYjA0j8ad0ur7w==",
-                  "hex": "713b466cdfbe7f273881f8456ea17e35337205dd2af66355d5c43640493accc41f144cdc965dfb81d8d3b092fe53a0fd1d01a9993ea97988c0d23f1a774babef"
+                  "base64": "S9x/o7TMOecTpMVoyOkFCEfULcvLVgMkxKBreZio4nXRUXanIDAyU/lIefsgJwo25iWMCsc9MXbrgVhkcyOIBQ==",
+                  "hex": "4bdc7fa3b4cc39e713a4c568c8e9050847d42dcbcb560324c4a06b7998a8e275d15176a720303253f94879fb20270a36e6258c0ac73d3176eb81586473238805"
                 }
               }
             },
