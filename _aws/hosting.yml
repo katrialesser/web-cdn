@@ -34,8 +34,14 @@ Resources:
     Properties:
       AccessControl: PublicRead
       BucketName: !FindInMap [Bucket, !Ref Environment, name]
-#      VersioningConfiguration:
-#        Status: Enabled
+      CorsConfiguration:
+        CorsRules:
+        - Id: AllowAllGets
+          AllowedHeaders: ['*']
+          AllowedMethods: [GET]
+          AllowedOrigins: ['*']
+          ExposedHeaders: [Date]
+          MaxAge: '3600'
       WebsiteConfiguration:
         IndexDocument: index.html
       Tags:

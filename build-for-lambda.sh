@@ -16,6 +16,6 @@ npm install
 cd _aws
 
 aws cloudformation package --template-file webhook-receivers.yml --s3-bucket cdn-byu-edu-cloudformation-temp \
-    --output-template-file packaged-webhooks.yml
+    --output-template-file packaged-webhooks.yml --profile $1
 
-aws cloudformation deploy --template-file packaged-webhooks.yml --stack-name WebCommunityCDN-Hooks-Prod --capabilities CAPABILITY_IAM
+aws cloudformation deploy --template-file packaged-webhooks.yml --stack-name WebCommunityCDN-Hooks-Prod --capabilities CAPABILITY_IAM --profile $1
