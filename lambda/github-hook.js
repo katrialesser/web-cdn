@@ -5,6 +5,8 @@
 
 require('babel-polyfill');
 
+const ipaddr = require('ipaddr.js');
+
 /**
  *
  * @returns {Promise}
@@ -35,7 +37,8 @@ exports.handler = function githubTrigger(incoming, context, callback) {
 
         const util = require('../lib/util');
 
-        yaml.readPromise(path.join(process.cwd(), 'main-config.yml'))
+        _validateGithubIp(callerIp)
+            .then(() => yaml.readPromise(path.join(process.cwd(), 'main-config.yml')))
             .then(libs => {
                 console.log('Running with libs config', libs);
                 let repoIsRegistered = util.objectAsArray(libs).some(pair => {
@@ -60,9 +63,23 @@ exports.handler = function githubTrigger(incoming, context, callback) {
                 callback(err)
             });
     } catch (err) {
-        console.error('error', err);
+        console.error('error', err, err.stack);
         callback(err);
     }
-    console.log('fired up promises');
 };
+
+function _validateGithubIp(ip) {
+    return require('../lib/github/github-config').request
+        .promise('https://api.github.com/meta')
+        .then(resp => {
+            let hookCidrs = resp.hooks;
+            console.log(`Checking if caller ip ${ip} is in github cidr range ${hookCidrs}`);
+            let parsedIp = ipaddr.parse(ip);
+            let inRange = hookCidrs.some(cidr => parsedIp.match(ipaddr.parseCIDR(cidr)));
+
+            if (!inRange) {
+                throw new Error(`Caller IP ${ip} is not a Github Webhook caller!`);
+            }
+        })
+}
 
