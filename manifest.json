@@ -1,6 +1,6 @@
 {
   "$cdn-version": "0.3.0",
-  "$built": "2017-02-08T21:16:42.241Z",
+  "$built": "2017-02-10T22:42:09.760Z",
   "libraries": {
     "demo-lib": {
       "source": "github:ThatJoeMoore/byu-web-cdn-demo-lib",
@@ -431,7 +431,7 @@
           "name": "unstable",
           "ref": "master",
           "tarball_url": "https://api.github.com/repos/byuweb/2017-components/tarball/master",
-          "git_sha": "f6d53d2bf476772cad41db457b5cd6ea755b0de5",
+          "git_sha": "0215287df6ce838eafb1ae064d5fdcf46a16e969",
           "link": "https://github.com/byuweb/2017-components/tree/master",
           "resources": {
             "bootstrap.js": {
