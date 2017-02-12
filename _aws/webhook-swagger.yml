@@ -23,7 +23,7 @@ paths:
         201:
           description: Okay
       x-amazon-apigateway-integration: 
-#        credentials: ${stageVariables.GithubCallerRoleArn}
+        credentials:
         responses: 
           default: 
             statusCode: "201"

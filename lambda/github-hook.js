@@ -7,6 +7,12 @@ require('babel-polyfill');
 
 const ipaddr = require('ipaddr.js');
 
+// const AWS = require('aws-sdk');
+//
+// const lambda = new AWS.Lambda();
+//
+// const BuildRequest = require('./build-request');
+
 /**
  *
  * @returns {Promise}
@@ -27,8 +33,6 @@ exports.handler = function githubTrigger(incoming, context, callback) {
         callback(null, {ran: false, reason: 'eventType !== push'});
         return Promise.resolve();
     }
-
-    //TODO: Add Github IP validation - https://api.github.com/meta
 
     try {
         //Note: these requires are being delayed in the name of fast startup times.
@@ -51,6 +55,18 @@ exports.handler = function githubTrigger(incoming, context, callback) {
                     callback(null, {ran: false, reason: message});
                     return;
                 }
+
+                // let request = {
+                //     source: BuildRequest.Source.GITHUB_PUSH,
+                //     sourceRepo: repoName,
+                //     commitSha: eventBody.head_commit.id
+                // };
+                //
+                // lambda.invoke({
+                //     FunctionName: process.env.BUILD_FUNCTION,
+                //     InvocationType: 'Event',
+                //
+                // })
 
                 const runner = require('../runner');
 

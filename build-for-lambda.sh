@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -e
 
 mkdir -p dist/
 
@@ -15,7 +15,7 @@ npm install
 
 cd _aws
 
-aws cloudformation package --template-file webhook-receivers.yml --s3-bucket cdn-byu-edu-cloudformation-temp \
+aws cloudformation package --template-file hosting.yml --s3-bucket cdn-byu-edu-cloudformation-temp \
     --output-template-file packaged-webhooks.yml --profile $1
 
-aws cloudformation deploy --template-file packaged-webhooks.yml --stack-name WebCommunityCDN-Hooks-Prod --capabilities CAPABILITY_IAM --profile $1
+aws cloudformation deploy --parameter-overrides Environment=prod --template-file packaged-webhooks.yml --stack-name WebCommunityCDN-Hosting-Prod --profile $1

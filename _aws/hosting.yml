@@ -1,5 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 Parameters:
   Environment:
     Type: String
@@ -8,13 +9,6 @@ Parameters:
     AllowedValues:
       - dev
       - prod
-  DNSStackName:
-    Type: String
-    Description: Stack name of the DNS Stack
-  CertificateArn:
-    Type: String
-    Description: ARN of ACM certificate to use for SSL
-    Default: arn:aws:acm:us-east-1:427927161742:certificate/66066e1d-6aac-49f4-8b52-bd699547b8d6
 Mappings:
   Bucket:
     prod:
@@ -56,58 +50,88 @@ Resources:
         Value: public
       - Key: app
         Value: Web Community CDN
-  WebsiteCDN:
-    Type: AWS::CloudFront::Distribution
+  ContentBucketAllowUpdates:
+    Type: AWS::S3::BucketPolicy
     Properties:
-      DistributionConfig:
-        Comment: CDN for S3-backed website
-        Aliases:
-         - !FindInMap [ DNSSubdomainMap, !Ref Environment, alias ]
-        Enabled: 'true'
-        HttpVersion: http2
-        ViewerCertificate:
-          AcmCertificateArn: !Ref CertificateArn
-          SslSupportMethod: sni-only
-        DefaultCacheBehavior:
-          AllowedMethods: [GET, HEAD, OPTIONS]
-          Compress: true
-          DefaultTTL: 3600
-          ForwardedValues:
-            QueryString: 'true'
-          TargetOriginId: only-origin
-          ViewerProtocolPolicy: redirect-to-https
-        DefaultRootObject: index.html
-        PriceClass: PriceClass_100
-        Origins:
-        - Id: only-origin
-          DomainName: !GetAtt [ ContentBucket, DomainName ]
-          S3OriginConfig:
-            OriginAccessIdentity: ''
-  WebsiteDNS:
-    Type: AWS::Route53::RecordSetGroup
+      Bucket: !Ref ContentBucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecuteCodePipelineEventServiceRole"
+            Action:
+              - s3:ListBucket
+            Resource: !Sub "arn:aws:s3:::${ContentBucket}"
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecuteCodePipelineEventServiceRole"
+            Action:
+              - s3:*
+            Resource: !Sub "arn:aws:s3:::${ContentBucket}/*"
+
+  WebhookApi:
+    Type: AWS::Serverless::Api
     Properties:
-      HostedZoneName: !FindInMap [ DNSSubdomainMap, !Ref Environment, root ]
-      Comment: DNS for CDN
-      RecordSets:
-        - Name: !FindInMap [ DNSSubdomainMap, !Ref Environment, root ]
-          Type: A
-          AliasTarget:
-            HostedZoneId: Z2FDTNDATAQYW2
-            DNSName: !GetAtt [WebsiteCDN, DomainName]
-        - Name: !FindInMap [ DNSSubdomainMap, !Ref Environment, root ]
-          Type: AAAA
-          AliasTarget:
-            HostedZoneId: Z2FDTNDATAQYW2
-            DNSName: !GetAtt [WebsiteCDN, DomainName]
+      DefinitionUri: ./webhook-swagger.yml
+      StageName: Prod
+      Variables:
+        GithubLambdaName: !Ref GithubHookFunction
+    Tags:
+      - Key: Name
+        Value: !Join [ " ", [ !FindInMap [ Bucket, !Ref Environment, name ], Web Community CDN Webhook API ] ]
+      - Key: team
+        # This isn't necessarily accurate, but it's the best group I can find for it.
+        Value: OIT_APP_DEV__STUDENT_LIFE_APPS
+      - Key: env
+        Value: !Ref Environment
+      - Key: data-sensitivity
+        Value: public
+      - Key: app
+        Value: Web Community CDN
+    DependsOn: [GithubHookFunction]
+  GithubHookFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./../
+      Handler: lambda/github-hook.handler
+      Runtime: nodejs4.3
+      MemorySize: 256
+      Timeout: 60
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecuteCodePipelineEventServiceRole"
+      Events:
+        ProxyApiRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref WebhookApi
+            Path: /github
+            Method: POST
+    Tags:
+      - Key: Name
+        Value: !Join [ " ", [ !FindInMap [ Bucket, !Ref Environment, name ], Web Community CDN Github Webhook Receiver ] ]
+      - Key: team
+        # This isn't necessarily accurate, but it's the best group I can find for it.
+        Value: OIT_APP_DEV__STUDENT_LIFE_APPS
+      - Key: env
+        Value: !Ref Environment
+      - Key: data-sensitivity
+        Value: public
+      - Key: app
+        Value: Web Community CDN
 Outputs:
-  WebsiteURL:
-    Value:
-      Fn::Join:
-      - ''
-      - - http://
-        - Ref: WebsiteDNS
-    Description: The URL of the newly created website
-  BucketName:
+  ContentBucket:
     Value:
       Ref: ContentBucket
     Description: Name of S3 bucket to hold website content
+    Export:
+      Name: !Sub "${AWS::StackName}-ContentBucket"
+  ContentBucketDomain:
+    Value: !GetAtt ContentBucket.DomainName
+    Description: Domain name of the content S3 bucket
+    Export:
+      Name: !Sub "${AWS::StackName}-ContentBucketDomain"
+  WebhookApiConsole:
+    Value: !Sub "https://${AWS::Region}.console.aws.amazon.com/apigateway/home?region=${AWS::Region}#/apis/${WebhookApi}/resources"
+    Description: URL of the Webhook API Console
+
+
