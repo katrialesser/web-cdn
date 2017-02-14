@@ -1,0 +1,44 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  AllowCloudFrontInvalidation:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: AllowCloudFrontInvalidation
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - cloudfront:CreateInvalidation
+              - cloudfront:GetInvalidation
+              - cloudfront:ListInvalidations
+            Resource: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/*"
+  CdnBuilderLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/CloudFrontReadOnlyAccess"
+        - !Sub "arn:aws:iam::${AWS::AccountId}:policy/${AllowCloudFrontInvalidation}"
+Outputs:
+  AllowCloudFrontInvalidationPolicy:
+    Description: ARN of the policy for allowing Cloud Front Invalidations
+    Value: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${AllowCloudFrontInvalidation}"
+    Export:
+      Name: !Sub "${AWS::StackName}-AllowCloudFrontInvalidationPolicy"
+  BuilderLambdaRole:
+    Description: ARN of the role for the CDN builder lambda
+    Value: !GetAtt CdnBuilderLambdaRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-BuilderLambdaRole"
+
