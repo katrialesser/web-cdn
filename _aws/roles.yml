@@ -5,6 +5,8 @@ Resources:
     Type: AWS::IAM::Policy
     Properties:
       PolicyName: AllowCloudFrontInvalidation
+      Roles:
+        - !Ref CdnBuilderLambdaRole
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -29,7 +31,6 @@ Resources:
       Path: "/"
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/CloudFrontReadOnlyAccess"
-        - !Sub "arn:aws:iam::${AWS::AccountId}:policy/${AllowCloudFrontInvalidation}"
 Outputs:
   AllowCloudFrontInvalidationPolicy:
     Description: ARN of the policy for allowing Cloud Front Invalidations
