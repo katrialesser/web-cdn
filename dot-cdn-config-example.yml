@@ -1,0 +1,11 @@
+---
+name: User-Readable Name Here
+description: User-readable description here
+resources: # Resources tells the CDN which files to include.  You can use globs to include entire directories.
+  - 'my-file.js'  #This is just a file name/glob.  It'll be copied as-is
+
+  - src: dist/**  #This object, using src: and dest: , defines files that we want to move from one location to another.
+    dest: ./      # In this example, some build process puts files in 'dist', but we want to move them to the root directory
+entrypoints:  #entrypoints tells the CDN which files the users will be interested in using. This might go away.
+  bootstrap.js: 'Examines browser support and downloads the appropriate component bundle'
+docs: https://github.com/byuweb/2017-components #This is a URL to documentation about how to use the library
