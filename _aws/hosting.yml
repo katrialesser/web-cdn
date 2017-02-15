@@ -9,6 +9,10 @@ Parameters:
     AllowedValues:
       - dev
       - prod
+  RolesStackName:
+    Type: String
+    Description: CFN stack name of the Roles stack
+    Default: WebCommunityCDN-Roles
 Mappings:
   Bucket:
     prod:
@@ -50,7 +54,7 @@ Resources:
         Value: public
       - Key: app
         Value: Web Community CDN
-  ContentBucketAllowUpdates:
+  ContentBucketAllowLambdaUpdates:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref ContentBucket
@@ -59,13 +63,15 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecuteCodePipelineEventServiceRole"
+              AWS:
+                Fn::ImportValue: !Sub "${RolesStackName}-BuilderLambdaRole"
             Action:
               - s3:ListBucket
             Resource: !Sub "arn:aws:s3:::${ContentBucket}"
           - Effect: Allow
             Principal:
-              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecuteCodePipelineEventServiceRole"
+              AWS:
+                Fn::ImportValue: !Sub "${RolesStackName}-BuilderLambdaRole"
             Action:
               - s3:*
             Resource: !Sub "arn:aws:s3:::${ContentBucket}/*"
@@ -98,7 +104,8 @@ Resources:
       Runtime: nodejs4.3
       MemorySize: 256
       Timeout: 60
-      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecuteCodePipelineEventServiceRole"
+      Role:
+        Fn::ImportValue: !Sub "${RolesStackName}-BuilderLambdaRole"
       Events:
         ProxyApiRoot:
           Type: Api

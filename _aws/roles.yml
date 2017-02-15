@@ -15,7 +15,7 @@ Resources:
               - cloudfront:CreateInvalidation
               - cloudfront:GetInvalidation
               - cloudfront:ListInvalidations
-            Resource: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/*"
+            Resource: "*"
   CdnBuilderLambdaRole:
     Type: AWS::IAM::Role
     Properties:
